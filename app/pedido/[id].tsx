@@ -22,8 +22,8 @@ import {
   type UsoTelaMovil,
 } from "../../src/api/pedidos";
 import { estilos } from "../../src/theme/estilos";
-import { marca, tema } from "../../src/theme/marca";
-import { BotonMarca, CampoMarca, EtiquetaSeccion, IconoCostura } from "../../src/components/Marca";
+import { espacio, marca, radio, sombraTarjeta, tema, tipo } from "../../src/theme/marca";
+import { BotonMarca, CampoMarca, ChipMarca, EstadoPedido, EtiquetaSeccion, IconoCostura } from "../../src/components/Marca";
 import {
   cerrarSesion,
   inactividadExpirada,
@@ -234,9 +234,9 @@ export default function DetallePedido() {
   }
 
   return (
-    <ScrollView contentContainerStyle={pantalla.contenido} keyboardShouldPersistTaps="handled">
+    <ScrollView contentContainerStyle={estilos.contenedor} keyboardShouldPersistTaps="handled">
       <Pressable accessibilityRole="button" onPress={() => router.back()} style={pantalla.volver}>
-        <IconoCostura nombre="flecha" size={22} /><Text style={pantalla.volverTexto}>Mis pedidos</Text>
+        <IconoCostura nombre="flecha" size={20} color={tema.titulo} /><Text style={pantalla.volverTexto}>Mis pedidos</Text>
       </Pressable>
       {cargando ? <Text style={estilos.texto}>Cargando detalle…</Text> : null}
       {error ? <Text accessibilityRole="alert" style={estilos.error}>{error}</Text> : null}
@@ -244,123 +244,108 @@ export default function DetallePedido() {
 
       {pedido ? (
         <>
-          <View style={pantalla.resumen}>
-            <View style={pantalla.resumenIcono}><IconoCostura nombre="prenda" size={28} color={tema.titulo} /></View>
-            <Text style={pantalla.codigo}>PEDIDO {pedido.codigo}</Text>
-            <Text style={pantalla.nombrePrenda}>{pedido.prenda_nombre}</Text>
-            <View style={pantalla.resumenLinea}>
-              <View style={[pantalla.estadoPill, { backgroundColor: colorEstado(pedido.estado) }]}><Text style={pantalla.estadoTexto}>{pedido.estado.replace(/_/g, " ")}</Text></View>
+          <View style={[estilos.tarjetaBlanca, pantalla.tarjeta]}>
+            <View style={pantalla.codigoFila}>
+              <Text style={pantalla.codigo}>PEDIDO {pedido.codigo}</Text>
+              <EstadoPedido estado={pedido.estado} />
             </View>
-            <View style={pantalla.datosResumen}>
-              <View style={pantalla.dato}><IconoCostura nombre="persona" size={15} /><Text style={pantalla.datoTexto}>{pedido.cliente_nombre}</Text></View>
-              <View style={pantalla.dato}><IconoCostura nombre="calendario" size={15} /><Text style={pantalla.datoTexto}>Entrega {pedido.fecha_entrega}</Text></View>
-            </View>
-            {pedido.estado !== "ENTREGADO" ? (
-              <>
-                {requiereConsumos ? <Text style={pantalla.ayudaEstado}>Recepción debe registrar los consumos antes de iniciar el pedido.</Text> : null}
-                <BotonMarca onPress={confirmarAvance} cargando={actualizandoEstado} disabled={requiereConsumos} accessibilityLabel="Confirmar siguiente estado" style={pantalla.botonAvance}>Confirmar siguiente estado</BotonMarca>
-              </>
-            ) : null}
+            <Text style={estilos.titulo}>{pedido.prenda_nombre}</Text>
+            <View style={pantalla.dato}><IconoCostura nombre="persona" size={13} color={tema.titulo} /><Text style={pantalla.datoTexto}>{pedido.cliente_nombre}</Text></View>
+            <View style={pantalla.dato}><IconoCostura nombre="calendario" size={13} color={tema.titulo} /><Text style={pantalla.datoTexto}>Entrega {pedido.fecha_entrega}</Text></View>
           </View>
 
-          {pedido.descripcion ? <View style={pantalla.tarjeta}><EtiquetaSeccion icono="aguja">Indicaciones del trabajo</EtiquetaSeccion><Text style={pantalla.cuerpo}>{pedido.descripcion}</Text></View> : null}
+          {pedido.descripcion ? <View style={[estilos.tarjetaBlanca, pantalla.tarjeta]}><EtiquetaSeccion icono="aguja">Indicaciones del trabajo</EtiquetaSeccion><Text style={estilos.texto}>{pedido.descripcion}</Text></View> : null}
 
-          <View style={pantalla.tarjeta}>
-            <EtiquetaSeccion icono="hilo">Consumos de tela</EtiquetaSeccion>
-            {consumos.length === 0 ? <Text style={pantalla.vacioTexto}>Recepción aún no ha registrado consumos.</Text> : consumos.map((uso) => (
-              <View key={uso.id} style={pantalla.registro}>
-                <View style={pantalla.registroIcono}><IconoCostura nombre="hilo" size={18} /></View>
-                <View style={pantalla.registroTexto}><Text style={pantalla.registroTitulo}>{uso.tela_nombre} · {uso.tela_color}</Text><Text style={pantalla.cuerpo}>{uso.metros_usados} m{uso.registrado_por_nombre ? ` · Capturó ${uso.registrado_por_nombre}` : ""}</Text><Text style={pantalla.meta}>{uso.confirmado ? "Inventario descontado" : uso.vigente ? "Pendiente de confirmación" : "Registro reemplazado"}</Text></View>
+          <View style={[estilos.tarjetaBlanca, pantalla.tarjeta]}>
+            <EtiquetaSeccion icono="carrete">Consumos de tela</EtiquetaSeccion>
+            {consumos.length === 0 ? <Text style={estilos.texto}>Recepción aún no ha registrado consumos.</Text> : consumos.map((uso, indice) => (
+              <View key={uso.id} style={[pantalla.registro, indice > 0 && pantalla.registroSeparado]}>
+                <Text style={pantalla.registroTitulo}>{uso.tela_nombre} · {uso.tela_color}</Text>
+                <View style={pantalla.metrosFila}>
+                  <Text style={pantalla.metros}>{uso.metros_usados} m</Text>
+                  <ChipMarca fondo={uso.confirmado ? marca.verdeMenta : uso.vigente ? marca.amarilloSuave : marca.blancoLavanda}>{uso.confirmado ? "Inventario descontado" : uso.vigente ? "Pendiente de confirmación" : "Registro reemplazado"}</ChipMarca>
+                </View>
+                {uso.registrado_por_nombre ? <Text style={estilos.nota}>Capturó {uso.registrado_por_nombre}</Text> : null}
               </View>
             ))}
           </View>
 
-          <View style={pantalla.tarjeta}>
-            <EtiquetaSeccion icono="persona">Medidas más recientes</EtiquetaSeccion>
+          {pedido.estado !== "ENTREGADO" ? (
+            <>
+              <BotonMarca onPress={confirmarAvance} cargando={actualizandoEstado} disabled={requiereConsumos} accessibilityLabel="Confirmar siguiente estado">Confirmar siguiente estado</BotonMarca>
+              {requiereConsumos ? <Text style={estilos.nota}>Recepción debe registrar los consumos antes de iniciar el pedido.</Text> : null}
+            </>
+          ) : null}
+
+          <View style={[estilos.tarjetaBlanca, pantalla.tarjeta]}>
+            <EtiquetaSeccion icono="aguja">Medidas más recientes</EtiquetaSeccion>
             {pedido.medidas_ultima_toma ? <>
-              <Text style={pantalla.meta}>{pedido.medidas_ultima_toma.categoria} · {new Date(pedido.medidas_ultima_toma.fecha).toLocaleDateString("es-EC")}</Text>
+              <Text style={estilos.nota}>{pedido.medidas_ultima_toma.categoria} · {new Date(pedido.medidas_ultima_toma.fecha).toLocaleDateString("es-EC")}</Text>
               <View style={pantalla.medidasGrid}>{Object.entries(pedido.medidas_ultima_toma.valores_cm).map(([codigo, valor]) => <View key={codigo} style={pantalla.medida}><Text style={pantalla.medidaNombre}>{codigo.replace(/_/g, " ")}</Text><Text style={pantalla.medidaValor}>{valor} cm</Text></View>)}</View>
-            </> : <Text style={pantalla.vacioTexto}>No hay medidas registradas para esta prenda.</Text>}
+            </> : <Text style={estilos.texto}>No hay medidas registradas para esta prenda.</Text>}
           </View>
 
-          {pedido.nota_interna ? <View style={pantalla.tarjeta}><EtiquetaSeccion icono="aguja">Nota interna</EtiquetaSeccion><Text style={pantalla.cuerpo}>{pedido.nota_interna}</Text></View> : null}
+          {pedido.nota_interna ? <View style={[estilos.tarjetaBlanca, pantalla.tarjeta]}><EtiquetaSeccion icono="aguja">Nota interna</EtiquetaSeccion><Text style={estilos.texto}>{pedido.nota_interna}</Text></View> : null}
 
-          <View style={pantalla.tarjeta}>
+          <View style={[estilos.tarjetaBlanca, pantalla.tarjeta]}>
             <EtiquetaSeccion icono="calendario">Historial del pedido</EtiquetaSeccion>
-            {historial.length === 0 ? <Text style={pantalla.vacioTexto}>Aún no hay cambios de estado.</Text> : historial.map((cambio, indice) => (
+            {historial.length === 0 ? <Text style={estilos.texto}>Aún no hay cambios de estado.</Text> : historial.map((cambio, indice) => (
               <View key={cambio.id} style={pantalla.historialFila}>
                 <View style={[pantalla.puntoHistorial, indice === 0 && pantalla.puntoActual]} />
-                <View style={pantalla.historialTexto}><Text style={pantalla.registroTitulo}>{cambio.estado_anterior.replace(/_/g, " ")} → {cambio.estado_nuevo.replace(/_/g, " ")}</Text><Text style={pantalla.meta}>{new Date(cambio.fecha_hora).toLocaleString("es-EC")}</Text></View>
+                <View style={pantalla.historialTexto}><Text style={pantalla.registroTitulo}>{cambio.estado_anterior.replace(/_/g, " ")} → {cambio.estado_nuevo.replace(/_/g, " ")}</Text><Text style={estilos.nota}>{new Date(cambio.fecha_hora).toLocaleString("es-EC")}</Text></View>
               </View>
             ))}
           </View>
 
-          <View style={pantalla.tarjeta}>
-            <EtiquetaSeccion icono="aguja">Registrar nueva toma</EtiquetaSeccion>
-            <Text style={pantalla.cuerpo}>Elige la categoría y prenda. Las medidas se guardan en centímetros.</Text>
-            <Text style={pantalla.etiqueta}>Categoría</Text>
-            <View style={pantalla.opciones}>{categorias.map((item) => <Pressable key={item.id} accessibilityRole="button" accessibilityState={{ selected: categoria === item.codigo }} onPress={() => void seleccionarCategoria(item.codigo)} style={[pantalla.opcion, categoria === item.codigo && pantalla.opcionActiva]}><Text style={[pantalla.opcionTexto, categoria === item.codigo && pantalla.opcionTextoActiva]}>{item.nombre}</Text></Pressable>)}</View>
+          <View style={[estilos.tarjetaBlanca, pantalla.tarjeta]}>
+            <Text style={pantalla.codigo}>PEDIDO {pedido.codigo} · {pedido.prenda_nombre}</Text>
+            <Text style={estilos.titulo}>Registrar nueva toma</Text>
+            <Text style={estilos.texto}>Elige la categoría y prenda. Las medidas se guardan en centímetros.</Text>
+            <Text style={estilos.etiqueta}>Categoría</Text>
+            <View style={pantalla.opciones}>{categorias.map((item) => <Pressable key={item.id} accessibilityRole="button" accessibilityState={{ selected: categoria === item.codigo }} onPress={() => void seleccionarCategoria(item.codigo)} style={[estilos.chip, pantalla.opcion, categoria === item.codigo && pantalla.categoriaActiva]}><Text style={estilos.chipTexto}>{item.nombre}</Text></Pressable>)}</View>
             {categoria !== "BEBE" ? <>
-              <Text style={pantalla.etiqueta}>Prenda</Text>
-              <View style={pantalla.opciones}>{prendas.map((item) => <Pressable key={item.id} accessibilityRole="button" accessibilityState={{ selected: prenda === item.id }} onPress={() => void seleccionarPrenda(item)} style={[pantalla.opcion, prenda === item.id && pantalla.opcionActiva]}><Text style={[pantalla.opcionTexto, prenda === item.id && pantalla.opcionTextoActiva]}>{item.nombre}</Text></Pressable>)}</View>
+              <Text style={estilos.etiqueta}>Prenda</Text>
+              <View style={pantalla.opciones}>{prendas.map((item) => <Pressable key={item.id} accessibilityRole="button" accessibilityState={{ selected: prenda === item.id }} onPress={() => void seleccionarPrenda(item)} style={[estilos.chip, pantalla.opcion, prenda === item.id && pantalla.prendaActiva]}><Text style={estilos.chipTexto}>{item.nombre}</Text></Pressable>)}</View>
             </> : null}
-            {campos.map((campo) => <View key={campo.codigo} style={pantalla.campoMedida}><Text style={pantalla.etiqueta}>{campo.nombre}{campo.opcional ? " (opcional)" : ""} · cm</Text><Text style={pantalla.instruccion}>{campo.como_se_toma}</Text><CampoMarca accessibilityLabel={`Medida ${campo.nombre} en centimetros`} keyboardType="decimal-pad" value={valores[campo.codigo] ?? ""} onChangeText={(valor) => setValores((actual) => ({ ...actual, [campo.codigo]: valor.replace(/,/g, ".") }))} placeholder="Ejemplo: 86.5" />
-            </View>)}
-            {campos.length > 0 ? <BotonMarca onPress={() => void guardarToma()} cargando={guardandoMedidas} accessibilityLabel="Guardar medidas" style={pantalla.botonGuardar}>Guardar medidas</BotonMarca> : null}
           </View>
+
+          {campos.length > 0 ? (
+            <View style={[estilos.tarjetaBlanca, pantalla.formularioMedidas]}>
+              {campos.map((campo) => <CampoMarca key={campo.codigo} etiqueta={`${campo.nombre}${campo.opcional ? " (opcional)" : ""} · cm`} ayuda={campo.como_se_toma} icono="aguja" accessibilityLabel={`Medida ${campo.nombre} en centimetros`} keyboardType="decimal-pad" value={valores[campo.codigo] ?? ""} onChangeText={(valor) => setValores((actual) => ({ ...actual, [campo.codigo]: valor.replace(/,/g, ".") }))} placeholder="Ejemplo: 86.5" />)}
+              <BotonMarca onPress={() => void guardarToma()} cargando={guardandoMedidas} accessibilityLabel="Guardar medidas">Guardar medidas</BotonMarca>
+            </View>
+          ) : null}
         </>
       ) : null}
     </ScrollView>
   );
 }
 
-function colorEstado(estado: string): string {
-  if (estado === "PENDIENTE") return marca.amarilloSuave;
-  if (estado === "EN_PROCESO") return marca.celestePastel;
-  if (estado === "TERMINADO") return marca.verdeMenta;
-  return marca.lila;
-}
-
 const pantalla = StyleSheet.create({
-  contenido: { flexGrow: 1, backgroundColor: tema.fondo, paddingHorizontal: 16, paddingTop: 16, paddingBottom: 28, gap: 12 },
-  volver: { minHeight: 42, alignSelf: "flex-start", flexDirection: "row", alignItems: "center", gap: 4, paddingHorizontal: 5 },
-  volverTexto: { color: tema.titulo, fontSize: 14, fontWeight: "800" },
-  resumen: { alignItems: "center", padding: 20, borderRadius: 22, borderWidth: 1, borderColor: marca.lila, backgroundColor: marca.blanco, marginBottom: 2 },
-  resumenIcono: { width: 56, height: 56, borderRadius: 18, backgroundColor: marca.rosaPastel, alignItems: "center", justifyContent: "center", marginBottom: 11 },
-  codigo: { color: tema.encabezado, fontSize: 12, fontWeight: "800", letterSpacing: 0.7 },
-  nombrePrenda: { color: tema.titulo, fontSize: 22, fontWeight: "800", textAlign: "center", marginTop: 3 },
-  resumenLinea: { marginTop: 10 },
-  estadoPill: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 100 },
-  estadoTexto: { color: tema.texto, fontSize: 11, fontWeight: "800" },
-  datosResumen: { width: "100%", borderTopWidth: 1, borderTopColor: marca.blancoLavanda, marginTop: 16, paddingTop: 12, gap: 8 },
-  dato: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 7 },
-  datoTexto: { flexShrink: 1, color: tema.texto, fontSize: 13 },
-  ayudaEstado: { color: tema.texto, fontSize: 13, lineHeight: 19, textAlign: "center", marginTop: 14, marginBottom: 5, padding: 11, backgroundColor: marca.amarilloSuave, borderRadius: 12 },
-  botonAvance: { width: "100%", marginTop: 14 },
-  mensaje: { color: tema.exito, fontSize: 14, padding: 12, borderRadius: 12, backgroundColor: marca.verdeMenta },
-  tarjeta: { padding: 16, borderRadius: 18, borderWidth: 1, borderColor: marca.lila, backgroundColor: marca.blanco },
-  cuerpo: { color: tema.texto, fontSize: 14, lineHeight: 20 },
-  vacioTexto: { color: tema.texto, fontSize: 13, lineHeight: 19 },
-  registro: { flexDirection: "row", gap: 11, paddingVertical: 11, borderTopWidth: 1, borderTopColor: marca.blancoLavanda },
-  registroIcono: { width: 38, height: 38, borderRadius: 13, backgroundColor: marca.celestePastel, alignItems: "center", justifyContent: "center" },
-  registroTexto: { flex: 1, minWidth: 0 },
-  registroTitulo: { color: tema.titulo, fontSize: 14, lineHeight: 19, fontWeight: "800" },
-  meta: { color: tema.texto, opacity: 0.82, fontSize: 12, lineHeight: 18, marginTop: 3 },
-  medidasGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 13 },
-  medida: { width: "48%", minWidth: 122, flexGrow: 1, padding: 11, borderRadius: 12, backgroundColor: marca.blancoLavanda },
-  medidaNombre: { color: tema.texto, fontSize: 11, lineHeight: 16 },
-  medidaValor: { color: tema.titulo, fontSize: 14, fontWeight: "800", marginTop: 3 },
-  historialFila: { minHeight: 52, flexDirection: "row", alignItems: "flex-start", gap: 11, paddingVertical: 8 },
-  puntoHistorial: { width: 12, height: 12, borderRadius: 6, backgroundColor: marca.lila, marginTop: 3, borderWidth: 2, borderColor: marca.blanco },
+  volver: { minHeight: 32, alignSelf: "flex-start", flexDirection: "row", alignItems: "center", gap: 6 },
+  volverTexto: { ...tipo.cuerpo, fontWeight: "700", color: tema.titulo },
+  mensaje: { ...tipo.cuerpo, color: tema.exito, padding: 12, borderRadius: radio.campo, backgroundColor: marca.verdeMenta },
+  tarjeta: { gap: 10 },
+  codigoFila: { minHeight: 28, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
+  codigo: { flex: 1, ...tipo.mini, color: tema.encabezado },
+  dato: { minHeight: 22, flexDirection: "row", alignItems: "center", gap: 8 },
+  datoTexto: { flexShrink: 1, ...tipo.cuerpo, color: tema.texto },
+  registro: { gap: 6 },
+  registroSeparado: { borderTopWidth: 1, borderTopColor: marca.blancoLavanda, paddingTop: 10 },
+  registroTitulo: { ...tipo.cuerpo, fontWeight: "700", color: tema.texto },
+  metrosFila: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", flexWrap: "wrap", gap: 8 },
+  metros: { fontSize: 22, lineHeight: 28, fontWeight: "700", color: tema.texto },
+  medidasGrid: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
+  medida: { width: "48%", minWidth: 122, flexGrow: 1, padding: 11, borderRadius: radio.campo, backgroundColor: marca.blancoLavanda },
+  medidaNombre: { fontSize: 11, lineHeight: 16, color: tema.texto },
+  medidaValor: { ...tipo.cuerpo, fontWeight: "700", color: tema.titulo, marginTop: 3 },
+  historialFila: { minHeight: 44, flexDirection: "row", alignItems: "flex-start", gap: 11 },
+  puntoHistorial: { width: 12, height: 12, borderRadius: 6, backgroundColor: marca.lila, marginTop: 4, borderWidth: 2, borderColor: marca.blanco },
   puntoActual: { backgroundColor: marca.morado },
   historialTexto: { flex: 1 },
-  etiqueta: { color: tema.texto, fontSize: 13, fontWeight: "800", marginTop: 13, marginBottom: 7 },
-  opciones: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  opcion: { paddingHorizontal: 12, paddingVertical: 9, borderWidth: 1, borderColor: marca.lila, borderRadius: 100, backgroundColor: marca.blancoLavanda },
-  opcionActiva: { borderColor: marca.moradoOscuro, backgroundColor: marca.moradoOscuro },
-  opcionTexto: { color: tema.texto, fontSize: 12, fontWeight: "700" },
-  opcionTextoActiva: { color: marca.blanco },
-  campoMedida: { marginTop: 6 },
-  instruccion: { color: tema.texto, fontSize: 12, lineHeight: 17, marginBottom: 8 },
-  botonGuardar: { marginTop: 4 },
+  opciones: { flexDirection: "row", flexWrap: "wrap", gap: 6 },
+  opcion: { backgroundColor: marca.blanco, borderWidth: 1, borderColor: marca.lila, paddingVertical: 6 },
+  categoriaActiva: { backgroundColor: marca.lila },
+  prendaActiva: { backgroundColor: marca.rosaPastel, borderColor: marca.rosaPastel },
+  formularioMedidas: { gap: espacio.bloque, ...sombraTarjeta },
 });

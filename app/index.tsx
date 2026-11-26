@@ -1,7 +1,6 @@
 import { useFocusEffect, router } from "expo-router";
 import { useCallback, useState } from "react";
 import {
-  Image,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -13,19 +12,13 @@ import apiAuth, { esCosturera, mensajeDeError, type Usuario } from "../src/api/a
 import { listarMisPedidos, type PedidoMovil } from "../src/api/pedidos";
 import { cerrarSesion, inactividadExpirada, leerTokens } from "../src/auth/sesion";
 import { estilos } from "../src/theme/estilos";
-import { marca, tema } from "../src/theme/marca";
+import { EstadoPedido, IconoCostura, colorEstado } from "../src/components/Marca";
+import { espacio, marca, radio, tema, tipo } from "../src/theme/marca";
 
 const ESTADOS = ["Todos", "PENDIENTE", "EN_PROCESO", "TERMINADO", "ENTREGADO"];
 
 function etiquetaEstado(estado: string) {
   return estado.replace(/_/g, " ");
-}
-
-function colorEstado(estado: string) {
-  if (estado === "PENDIENTE") return marca.amarilloSuave;
-  if (estado === "EN_PROCESO") return marca.celestePastel;
-  if (estado === "TERMINADO") return marca.verdeMenta;
-  return marca.lila;
 }
 
 export default function PantallaPrincipal() {
@@ -76,24 +69,23 @@ export default function PantallaPrincipal() {
   const paginasTotales = Math.max(1, Math.ceil(total / 20));
 
   return (
-    <ScrollView contentContainerStyle={styles.contenido}>
-      <View style={styles.cabecera}>
-        <Image
-          source={require("../assets/logo-fran-costuras.png")}
-          style={styles.logo}
-          resizeMode="contain"
-          accessibilityLabel="Fran-Costuras — Diseña, Cose, Crea"
-        />
-        <Text style={styles.saludo}>Hola, {usuario?.nombre || usuario?.email || "costurera"}</Text>
-        <Text style={styles.intro}>Tus pedidos y fechas de entrega, siempre a mano.</Text>
+    <ScrollView contentContainerStyle={estilos.contenedor}>
+      <View style={styles.barra}>
+        <View style={styles.marcaApp}>
+          <IconoCostura nombre="tijeras" size={22} color={tema.titulo} />
+          <Text style={styles.marcaTexto}>Fran-Costuras</Text>
+        </View>
+        <Pressable accessibilityRole="button" onPress={() => void cerrarSesion().finally(() => router.replace("/login"))} accessibilityLabel="Salir de la sesión" hitSlop={8} style={styles.salir}>
+          <Text style={styles.salirTexto}>Cerrar sesión</Text>
+          <Text style={styles.flecha} accessibilityElementsHidden>→</Text>
+        </Pressable>
       </View>
 
-      <View style={styles.tituloFila}>
-        <View>
-          <Text style={estilos.titulo}>Mis pedidos</Text>
-          <Text style={styles.subtitulo}>{total} asignado{total === 1 ? "" : "s"}</Text>
-        </View>
-        <Text style={styles.iconoCostura} accessibilityElementsHidden>✂︎</Text>
+      <View style={styles.cabecera}>
+        <Text style={styles.saludo}>Hola, {usuario?.nombre || usuario?.email || "costurera"}</Text>
+        <Text style={estilos.titulo}>Mis pedidos</Text>
+        <Text style={estilos.texto}>Tus pedidos y fechas de entrega, siempre a mano.</Text>
+        <Text style={estilos.nota}>{total} asignado{total === 1 ? "" : "s"}</Text>
       </View>
 
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filtros}>
@@ -105,9 +97,9 @@ export default function PantallaPrincipal() {
               accessibilityRole="button"
               accessibilityState={{ selected: activo }}
               onPress={() => { setEstado(opcion); setPagina(1); setCargando(true); }}
-              style={[styles.filtro, activo && styles.filtroActivo]}
+              style={[estilos.chip, { backgroundColor: opcion === "Todos" ? marca.blanco : colorEstado(opcion) }, opcion === "Todos" && styles.filtroTodos, activo && styles.filtroActivo]}
             >
-              <Text style={[styles.filtroTexto, activo && styles.filtroTextoActivo]}>{opcion === "Todos" ? "Todos" : etiquetaEstado(opcion)}</Text>
+              <Text style={[estilos.chipTexto, activo && styles.filtroTextoActivo]}>{opcion === "Todos" ? "Todos" : etiquetaEstado(opcion)}</Text>
             </Pressable>
           );
         })}
@@ -117,30 +109,28 @@ export default function PantallaPrincipal() {
       {cargando ? <Text style={estilos.texto}>Cargando pedidos…</Text> : null}
       {!cargando && pedidos.length === 0 ? (
         <View style={styles.vacio}>
-          <Text style={styles.vacioIcono} accessibilityElementsHidden>✧</Text>
-          <Text style={styles.vacioTitulo}>Todo listo por aquí</Text>
-          <Text style={styles.vacioTexto}>No tienes pedidos en este estado. Cuando te asignen uno, aparecerá en esta lista.</Text>
+          <IconoCostura nombre="hilo" size={28} color={tema.encabezado} />
+          <Text style={estilos.seccion}>Todo listo por aquí</Text>
+          <Text style={[estilos.texto, styles.centrado]}>No tienes pedidos en este estado. Cuando te asignen uno, aparecerá en esta lista.</Text>
         </View>
       ) : null}
 
       {pedidos.map((pedido) => (
         <View key={pedido.id} style={styles.pedido}>
           <View style={styles.pedidoEncabezado}>
-            <View style={styles.pedidoIcono}><Text style={styles.iconoCostura} accessibilityElementsHidden>✂︎</Text></View>
+            <View style={styles.pedidoIcono}><IconoCostura nombre="prenda" size={20} color={tema.titulo} /></View>
             <View style={styles.pedidoNombre}>
               <Text style={styles.codigo}>{pedido.codigo}</Text>
-              <Text style={styles.prenda}>{pedido.prenda_nombre}</Text>
+              <Text style={styles.prenda} numberOfLines={2}>{pedido.prenda_nombre}</Text>
             </View>
-            <View style={[styles.estadoPill, { backgroundColor: colorEstado(pedido.estado) }]}>
-              <Text style={styles.estadoTexto}>{etiquetaEstado(pedido.estado)}</Text>
-            </View>
+            <EstadoPedido estado={pedido.estado} />
           </View>
           <View style={styles.detalleFila}>
-            <Text style={styles.detalleIcono}>◉</Text>
+            <IconoCostura nombre="persona" size={13} color={tema.titulo} />
             <Text style={styles.detalleTexto}>{pedido.cliente_nombre}</Text>
           </View>
           <View style={styles.detalleFila}>
-            <Text style={styles.detalleIcono}>◷</Text>
+            <IconoCostura nombre="calendario" size={13} color={tema.titulo} />
             <Text style={styles.detalleTexto}>Entrega: {pedido.fecha_entrega}</Text>
           </View>
           <Pressable
@@ -150,67 +140,55 @@ export default function PantallaPrincipal() {
             onPress={() => router.push({ pathname: "/pedido/[id]", params: { id: pedido.codigo } })}
           >
             <Text style={styles.botonDetalleTexto}>Ver detalle y medidas</Text>
-            <Text style={styles.botonFlecha} accessibilityElementsHidden>→</Text>
+            <Text style={styles.flecha} accessibilityElementsHidden>→</Text>
           </Pressable>
         </View>
       ))}
 
       {!cargando && total > 0 ? (
         <View style={styles.paginacion}>
-          <Pressable accessibilityRole="button" accessibilityLabel="Anterior" disabled={pagina <= 1} onPress={() => { setPagina((actual) => actual - 1); setCargando(true); }} style={[styles.botonPagina, pagina <= 1 && styles.botonDesactivado]}>
-            <Text style={styles.botonPaginaTexto}>‹ Anterior</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel="Anterior" disabled={pagina <= 1} onPress={() => { setPagina((actual) => actual - 1); setCargando(true); }} hitSlop={8} style={[styles.botonPagina, pagina <= 1 && styles.botonDesactivado]}>
+            <Text style={[styles.paginaEnlace, pagina <= 1 && styles.paginaInactiva]}>‹ Anterior</Text>
           </Pressable>
           <Text style={styles.paginaTexto}>{pagina} / {paginasTotales}</Text>
-          <Pressable accessibilityRole="button" accessibilityLabel="Siguiente" disabled={pagina >= paginasTotales} onPress={() => { setPagina((actual) => actual + 1); setCargando(true); }} style={[styles.botonPagina, pagina >= paginasTotales && styles.botonDesactivado]}>
-            <Text style={styles.botonPaginaTexto}>Siguiente ›</Text>
+          <Pressable accessibilityRole="button" accessibilityLabel="Siguiente" disabled={pagina >= paginasTotales} onPress={() => { setPagina((actual) => actual + 1); setCargando(true); }} hitSlop={8} style={[styles.botonPagina, pagina >= paginasTotales && styles.botonDesactivado]}>
+            <Text style={[styles.paginaEnlace, pagina >= paginasTotales && styles.paginaInactiva]}>Siguiente ›</Text>
           </Pressable>
         </View>
       ) : null}
-
-      <Pressable accessibilityRole="button" onPress={() => void cerrarSesion().finally(() => router.replace("/login"))} accessibilityLabel="Salir de la sesión" style={styles.salir}>
-        <Text style={styles.salirTexto}>Cerrar sesión</Text>
-      </Pressable>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  contenido: { flexGrow: 1, paddingHorizontal: 18, paddingTop: 18, paddingBottom: 30, backgroundColor: tema.fondo },
-  cabecera: { alignItems: "center", padding: 18, borderRadius: 22, backgroundColor: marca.blanco, borderWidth: 1, borderColor: marca.lila, marginBottom: 22 },
-  logo: { width: 150, height: 100, marginBottom: 2 },
-  saludo: { color: tema.titulo, fontSize: 20, fontWeight: "800", textAlign: "center" },
-  intro: { color: tema.texto, fontSize: 14, lineHeight: 20, textAlign: "center", marginTop: 5 },
-  tituloFila: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 12 },
-  subtitulo: { color: tema.texto, fontSize: 13, marginTop: -9, marginBottom: 12 },
-  iconoCostura: { color: tema.encabezado, fontSize: 27 },
-  filtros: { gap: 8, paddingVertical: 2, paddingBottom: 15 },
-  filtro: { paddingHorizontal: 14, paddingVertical: 9, borderRadius: 999, borderWidth: 1, borderColor: marca.lila, backgroundColor: marca.blanco },
+  barra: { minHeight: 38, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
+  marcaApp: { flexDirection: "row", alignItems: "center", gap: 7 },
+  marcaTexto: { ...tipo.seccion, color: tema.titulo },
+  salir: { minHeight: 32, flexDirection: "row", alignItems: "center", gap: 4 },
+  salirTexto: { ...tipo.etiqueta, color: tema.titulo },
+  flecha: { color: tema.titulo, fontSize: 16, lineHeight: 18, fontWeight: "700" },
+  cabecera: { gap: 4 },
+  saludo: { fontSize: 15, lineHeight: 20, fontWeight: "500", color: tema.encabezado },
+  centrado: { textAlign: "center" },
+  filtros: { gap: 8, paddingVertical: 2 },
+  filtroTodos: { borderWidth: 1, borderColor: marca.lila, paddingVertical: 6 },
   filtroActivo: { backgroundColor: marca.moradoOscuro, borderColor: marca.moradoOscuro },
-  filtroTexto: { color: tema.texto, fontSize: 12, fontWeight: "700" },
-  filtroTextoActivo: { color: "#FFFFFF" },
-  pedido: { width: "100%", marginBottom: 13, padding: 16, borderRadius: 18, borderWidth: 1, borderColor: marca.lila, backgroundColor: marca.blanco, shadowColor: marca.moradoOscuro, shadowOpacity: 0.07, shadowRadius: 12, shadowOffset: { width: 0, height: 5 }, elevation: 2 },
-  pedidoEncabezado: { flexDirection: "row", alignItems: "center", gap: 10, paddingBottom: 13, borderBottomWidth: 1, borderBottomColor: marca.blancoLavanda, marginBottom: 10 },
-  pedidoIcono: { width: 42, height: 42, borderRadius: 14, backgroundColor: marca.rosaPastel, alignItems: "center", justifyContent: "center" },
-  pedidoNombre: { flex: 1, minWidth: 0 },
-  codigo: { color: tema.encabezado, fontSize: 12, fontWeight: "700" },
-  prenda: { color: tema.titulo, fontSize: 16, fontWeight: "800", marginTop: 2 },
-  estadoPill: { maxWidth: 112, paddingHorizontal: 9, paddingVertical: 6, borderRadius: 999 },
-  estadoTexto: { color: tema.texto, fontSize: 10, fontWeight: "800", textAlign: "center" },
-  detalleFila: { flexDirection: "row", alignItems: "center", gap: 9, marginVertical: 5 },
-  detalleIcono: { width: 18, color: tema.encabezado, fontSize: 16, textAlign: "center" },
-  detalleTexto: { color: tema.texto, fontSize: 14, flexShrink: 1 },
-  botonDetalle: { minHeight: 46, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, marginTop: 12, paddingHorizontal: 14, borderRadius: 12, backgroundColor: marca.azulCeleste },
-  botonDetalleTexto: { color: tema.texto, fontSize: 14, fontWeight: "800" },
-  botonFlecha: { color: tema.titulo, fontSize: 18, fontWeight: "800" },
-  vacio: { alignItems: "center", padding: 24, borderRadius: 18, borderWidth: 1, borderColor: marca.lila, borderStyle: "dashed", backgroundColor: marca.blanco },
-  vacioIcono: { fontSize: 32, color: tema.encabezado, marginBottom: 7 },
-  vacioTitulo: { color: tema.titulo, fontSize: 17, fontWeight: "800", textAlign: "center" },
-  vacioTexto: { maxWidth: 300, color: tema.texto, fontSize: 13, lineHeight: 19, textAlign: "center", marginTop: 5 },
-  paginacion: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 6, marginVertical: 12 },
-  botonPagina: { paddingHorizontal: 12, paddingVertical: 10, borderRadius: 11, backgroundColor: marca.celestePastel },
-  botonDesactivado: { opacity: 0.45 },
-  botonPaginaTexto: { color: tema.texto, fontSize: 12, fontWeight: "700" },
-  paginaTexto: { color: tema.texto, fontSize: 12, fontWeight: "700" },
-  salir: { alignItems: "center", marginTop: 8, padding: 12 },
-  salirTexto: { color: tema.titulo, fontSize: 14, fontWeight: "700" },
+  filtroTextoActivo: { color: marca.blanco },
+  pedido: { width: "100%", gap: 8, padding: 14, borderRadius: radio.tarjeta, borderWidth: 1, borderColor: marca.lila, backgroundColor: marca.blanco },
+  pedidoEncabezado: { minHeight: 42, flexDirection: "row", alignItems: "center", gap: 8 },
+  pedidoIcono: { width: 40, height: 40, borderRadius: radio.campo, backgroundColor: marca.rosaPastel, alignItems: "center", justifyContent: "center" },
+  pedidoNombre: { flex: 1, minWidth: 0, gap: 2 },
+  codigo: { ...tipo.mini, color: tema.encabezado },
+  prenda: { ...tipo.seccion, color: tema.titulo },
+  detalleFila: { minHeight: 22, flexDirection: "row", alignItems: "center", gap: 8 },
+  detalleTexto: { flexShrink: 1, fontSize: 13, lineHeight: 18, color: tema.texto },
+  botonDetalle: { minHeight: 28, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
+  botonDetalleTexto: { flex: 1, ...tipo.etiqueta, color: tema.titulo },
+  vacio: { alignItems: "center", gap: 6, padding: espacio.tarjeta, borderRadius: radio.tarjeta, borderWidth: 2, borderColor: marca.lila, borderStyle: "dashed", backgroundColor: marca.blanco },
+  paginacion: { minHeight: 32, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 6 },
+  botonPagina: { paddingVertical: 7 },
+  botonDesactivado: { opacity: 0.5 },
+  paginaEnlace: { ...tipo.etiqueta, color: tema.titulo },
+  paginaInactiva: { fontWeight: "400", color: tema.texto },
+  paginaTexto: { ...tipo.etiqueta, color: tema.titulo },
 });
