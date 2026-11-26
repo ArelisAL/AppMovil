@@ -69,16 +69,16 @@ export default function LoginScreen() {
           <Text style={estilos.texto}>Usa las credenciales que te entregó la administradora.</Text>
           {error ? <Text accessibilityRole="alert" style={estilos.error}>{error}</Text> : null}
 
-          <CampoMarca etiqueta="Correo electrónico" icono="persona" placeholder="Escribe tu correo" autoCapitalize="none" autoCorrect={false} keyboardType="email-address" textContentType="emailAddress" value={email} onChangeText={setEmail} accessibilityLabel="Correo electrónico" returnKeyType="next" />
+          <CampoMarca etiqueta="Correo electrónico" icono="aguja" placeholder="Escribe tu correo" autoCapitalize="none" autoCorrect={false} keyboardType="email-address" textContentType="emailAddress" value={email} onChangeText={setEmail} accessibilityLabel="Correo electrónico" returnKeyType="next" />
 
-          <CampoMarca etiqueta="Contraseña" icono="hilo" placeholder="Escribe tu contraseña" textContentType="password" secureTextEntry={!mostrarContrasena} value={contrasena} onChangeText={setContrasena} accessibilityLabel="Contraseña" returnKeyType="go" onSubmitEditing={() => void iniciarSesion()} accion={
+          <CampoMarca etiqueta="Contraseña" icono="aguja" placeholder="Escribe tu contraseña" textContentType="password" secureTextEntry={!mostrarContrasena} value={contrasena} onChangeText={setContrasena} accessibilityLabel="Contraseña" returnKeyType="go" onSubmitEditing={() => void iniciarSesion()} accion={
             <Pressable accessibilityRole="button" accessibilityLabel={mostrarContrasena ? "Ocultar contraseña" : "Mostrar contraseña"} onPress={() => setMostrarContrasena((visible) => !visible)} hitSlop={8} style={vistas.mostrar}>
               <Text style={vistas.mostrarTexto}>{mostrarContrasena ? "Ocultar" : "Mostrar"}</Text>
             </Pressable>
           } />
 
           <BotonMarca onPress={() => void iniciarSesion()} cargando={cargando} accessibilityLabel="Iniciar sesión">{cargando ? "Iniciando…" : "Iniciar sesión"}</BotonMarca>
-          <View style={vistas.privacidad}><IconoCostura nombre="carrete" size={14} color={tema.titulo} /><Text style={[estilos.nota, vistas.privacidadTexto]}>Tu sesión se protege en este dispositivo.</Text></View>
+          <View style={vistas.privacidad}><IconoCostura nombre="carrete" size={16} color={tema.titulo} /><Text style={[estilos.nota, vistas.privacidadTexto]}>Tu sesión se protege en este dispositivo.</Text></View>
         </View>
         <Text style={vistas.pie}>Fran-Costuras  ·  Diseña · Cose · Crea</Text>
       </ScrollView>

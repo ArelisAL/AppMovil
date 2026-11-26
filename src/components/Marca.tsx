@@ -10,17 +10,15 @@ import {
   type ViewStyle,
 } from "react-native";
 
+import { IconoFigma, type NombreIcono } from "./Iconos";
 import { estilos } from "../theme/estilos";
 import { espacio, marca, radio, tema, tipo } from "../theme/marca";
 
-type IconoProps = { nombre: "tijeras" | "hilo" | "aguja" | "prenda" | "persona" | "calendario" | "reloj" | "flecha" | "ojo" | "cerrar" | "carrete"; size?: number; color?: string };
+type IconoProps = { nombre: NombreIcono | "hilo"; size?: number; color?: string };
 
-/** Glifos nativos para no introducir una dependencia de iconos en Expo. */
-export function IconoCostura({ nombre, size = 20, color = tema.encabezado }: IconoProps) {
-  const glifos: Record<IconoProps["nombre"], string> = {
-    tijeras: "✂", hilo: "◉", aguja: "╱", prenda: "◇", persona: "●", calendario: "▦", reloj: "◷", flecha: "›", ojo: "◉", cerrar: "×", carrete: "▤",
-  };
-  return <Text accessible={false} style={{ color, fontSize: size, lineHeight: size + 4, fontWeight: "700" }}>{glifos[nombre]}</Text>;
+/** Íconos de trazo del diseño de Figma; «hilo» se muestra como el carrete. */
+export function IconoCostura({ nombre, size = 20, color = tema.titulo }: IconoProps) {
+  return <IconoFigma nombre={nombre === "hilo" ? "carrete" : nombre} size={size} color={color} />;
 }
 
 type BotonProps = {
@@ -67,7 +65,7 @@ type CampoProps = TextInputProps & {
 export function CampoMarca({ icono, accion, style, contenedorStyle, etiqueta, ayuda, ...props }: CampoProps) {
   const entrada = (
     <View style={[ui.campoCaja, !etiqueta && !ayuda && contenedorStyle]}>
-      {icono ? <View style={ui.campoIcono}><IconoCostura nombre={icono} size={18} color={tema.titulo} /></View> : null}
+      {icono ? <View style={ui.campoIcono}><IconoCostura nombre={icono} size={20} /></View> : null}
       <TextInput {...props} style={[ui.campo, style]} placeholderTextColor="#77718B" />
       {accion ? <View style={ui.campoAccion}>{accion}</View> : null}
     </View>
@@ -86,7 +84,7 @@ export function CampoMarca({ icono, accion, style, contenedorStyle, etiqueta, ay
 export function ChipMarca({ children, fondo = marca.lila, colorTexto = tema.texto, icono, style }: { children: ReactNode; fondo?: string; colorTexto?: string; icono?: IconoProps["nombre"]; style?: ViewStyle }) {
   return (
     <View style={[estilos.chip, { backgroundColor: fondo }, style]}>
-      {icono ? <IconoCostura nombre={icono} size={14} color={tema.titulo} /> : null}
+      {icono ? <IconoCostura nombre={icono} size={15} /> : null}
       <Text style={[estilos.chipTexto, { color: colorTexto }]}>{children}</Text>
     </View>
   );
@@ -109,7 +107,7 @@ export function EstadoPedido({ estado }: { estado: string }) {
 }
 
 export function EtiquetaSeccion({ icono, children }: { icono: IconoProps["nombre"]; children: string }) {
-  return <View style={ui.seccionEtiqueta}><IconoCostura nombre={icono} size={17} color={tema.titulo} /><Text style={ui.seccionTitulo}>{children}</Text></View>;
+  return <View style={ui.seccionEtiqueta}><IconoCostura nombre={icono} size={18} /><Text style={ui.seccionTitulo}>{children}</Text></View>;
 }
 
 export const ui = StyleSheet.create({

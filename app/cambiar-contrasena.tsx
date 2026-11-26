@@ -40,7 +40,7 @@ export default function CambiarContrasenaScreen() {
   };
 
   const campoPassword = (key: string, label: string, placeholder: string, value: string, onChangeText: (valor: string) => void) => (
-    <CampoMarca etiqueta={label} icono="hilo" placeholder={placeholder} secureTextEntry={!mostrar[key]} value={value} onChangeText={onChangeText} accessibilityLabel={label} textContentType={key === "actual" ? "password" : "newPassword"} returnKeyType={key === "confirmar" ? "done" : "next"} onSubmitEditing={key === "confirmar" ? () => void guardar() : undefined} accion={
+    <CampoMarca etiqueta={label} icono="aguja" placeholder={placeholder} secureTextEntry={!mostrar[key]} value={value} onChangeText={onChangeText} accessibilityLabel={label} textContentType={key === "actual" ? "password" : "newPassword"} returnKeyType={key === "confirmar" ? "done" : "next"} onSubmitEditing={key === "confirmar" ? () => void guardar() : undefined} accion={
       <Pressable accessibilityRole="button" accessibilityLabel={mostrar[key] ? `Ocultar ${label.toLowerCase()}` : `Mostrar ${label.toLowerCase()}`} onPress={() => setMostrar((actual) => ({ ...actual, [key]: !actual[key] }))} hitSlop={8} style={vistas.mostrar}>
         <Text style={vistas.mostrarTexto}>{mostrar[key] ? "Ocultar" : "Mostrar"}</Text>
       </Pressable>
@@ -51,13 +51,13 @@ export default function CambiarContrasenaScreen() {
     <KeyboardAvoidingView style={vistas.flex} behavior={Platform.OS === "ios" ? "padding" : undefined}>
       <ScrollView contentContainerStyle={[estilos.contenedor, vistas.scroll]} keyboardShouldPersistTaps="handled">
         <View style={vistas.cabecera}>
-          <View style={vistas.iconoCaja}><IconoCostura nombre="aguja" size={22} color={tema.titulo} /></View>
+          <View style={vistas.iconoCaja}><IconoCostura nombre="aguja" size={24} color={tema.titulo} /></View>
           <Text style={estilos.titulo}>Protege tu cuenta</Text>
           <Text style={estilos.texto}>Crea una contraseña personal para continuar en la app.</Text>
         </View>
 
         <View style={[estilos.tarjetaBlanca, vistas.formulario]}>
-          <View style={vistas.aviso}><IconoCostura nombre="aguja" size={16} color={tema.titulo} /><Text style={vistas.avisoTexto}>Este cambio es necesario en tu primer ingreso.</Text></View>
+          <View style={vistas.aviso}><IconoCostura nombre="aguja" size={18} color={tema.titulo} /><Text style={vistas.avisoTexto}>Este cambio es necesario en tu primer ingreso.</Text></View>
           {error ? <Text accessibilityRole="alert" style={estilos.error}>{error}</Text> : null}
           {campoPassword("actual", "Contraseña temporal actual", "Contraseña temporal actual", contrasenaActual, setContrasenaActual)}
           {campoPassword("nueva", "Nueva contraseña", "Nueva contraseña", nuevaContrasena, setNuevaContrasena)}

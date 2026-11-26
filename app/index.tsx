@@ -72,12 +72,12 @@ export default function PantallaPrincipal() {
     <ScrollView contentContainerStyle={estilos.contenedor}>
       <View style={styles.barra}>
         <View style={styles.marcaApp}>
-          <IconoCostura nombre="tijeras" size={22} color={tema.titulo} />
+          <IconoCostura nombre="tijeras" size={25} color={tema.titulo} />
           <Text style={styles.marcaTexto}>Fran-Costuras</Text>
         </View>
         <Pressable accessibilityRole="button" onPress={() => void cerrarSesion().finally(() => router.replace("/login"))} accessibilityLabel="Salir de la sesión" hitSlop={8} style={styles.salir}>
           <Text style={styles.salirTexto}>Cerrar sesión</Text>
-          <Text style={styles.flecha} accessibilityElementsHidden>→</Text>
+          <IconoCostura nombre="flecha" size={15} />
         </Pressable>
       </View>
 
@@ -109,7 +109,7 @@ export default function PantallaPrincipal() {
       {cargando ? <Text style={estilos.texto}>Cargando pedidos…</Text> : null}
       {!cargando && pedidos.length === 0 ? (
         <View style={styles.vacio}>
-          <IconoCostura nombre="hilo" size={28} color={tema.encabezado} />
+          <IconoCostura nombre="carrete" size={28} color={tema.encabezado} />
           <Text style={estilos.seccion}>Todo listo por aquí</Text>
           <Text style={[estilos.texto, styles.centrado]}>No tienes pedidos en este estado. Cuando te asignen uno, aparecerá en esta lista.</Text>
         </View>
@@ -118,7 +118,7 @@ export default function PantallaPrincipal() {
       {pedidos.map((pedido) => (
         <View key={pedido.id} style={styles.pedido}>
           <View style={styles.pedidoEncabezado}>
-            <View style={styles.pedidoIcono}><IconoCostura nombre="prenda" size={20} color={tema.titulo} /></View>
+            <View style={styles.pedidoIcono}><IconoCostura nombre="prenda" size={22} color={tema.titulo} /></View>
             <View style={styles.pedidoNombre}>
               <Text style={styles.codigo}>{pedido.codigo}</Text>
               <Text style={styles.prenda} numberOfLines={2}>{pedido.prenda_nombre}</Text>
@@ -126,11 +126,11 @@ export default function PantallaPrincipal() {
             <EstadoPedido estado={pedido.estado} />
           </View>
           <View style={styles.detalleFila}>
-            <IconoCostura nombre="persona" size={13} color={tema.titulo} />
+            <IconoCostura nombre="persona" size={16} color={tema.titulo} />
             <Text style={styles.detalleTexto}>{pedido.cliente_nombre}</Text>
           </View>
           <View style={styles.detalleFila}>
-            <IconoCostura nombre="calendario" size={13} color={tema.titulo} />
+            <IconoCostura nombre="calendario" size={16} color={tema.titulo} />
             <Text style={styles.detalleTexto}>Entrega: {pedido.fecha_entrega}</Text>
           </View>
           <Pressable
@@ -140,7 +140,7 @@ export default function PantallaPrincipal() {
             onPress={() => router.push({ pathname: "/pedido/[id]", params: { id: pedido.codigo } })}
           >
             <Text style={styles.botonDetalleTexto}>Ver detalle y medidas</Text>
-            <Text style={styles.flecha} accessibilityElementsHidden>→</Text>
+            <IconoCostura nombre="flecha" size={18} />
           </Pressable>
         </View>
       ))}
@@ -166,7 +166,6 @@ const styles = StyleSheet.create({
   marcaTexto: { ...tipo.seccion, color: tema.titulo },
   salir: { minHeight: 32, flexDirection: "row", alignItems: "center", gap: 4 },
   salirTexto: { ...tipo.etiqueta, color: tema.titulo },
-  flecha: { color: tema.titulo, fontSize: 16, lineHeight: 18, fontWeight: "700" },
   cabecera: { gap: 4 },
   saludo: { fontSize: 15, lineHeight: 20, fontWeight: "500", color: tema.encabezado },
   centrado: { textAlign: "center" },

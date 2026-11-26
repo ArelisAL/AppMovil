@@ -236,7 +236,7 @@ export default function DetallePedido() {
   return (
     <ScrollView contentContainerStyle={estilos.contenedor} keyboardShouldPersistTaps="handled">
       <Pressable accessibilityRole="button" onPress={() => router.back()} style={pantalla.volver}>
-        <IconoCostura nombre="flecha" size={20} color={tema.titulo} /><Text style={pantalla.volverTexto}>Mis pedidos</Text>
+        <IconoCostura nombre="flecha" size={18} color={tema.titulo} /><Text style={pantalla.volverTexto}>Mis pedidos</Text>
       </Pressable>
       {cargando ? <Text style={estilos.texto}>Cargando detalle…</Text> : null}
       {error ? <Text accessibilityRole="alert" style={estilos.error}>{error}</Text> : null}
@@ -250,8 +250,8 @@ export default function DetallePedido() {
               <EstadoPedido estado={pedido.estado} />
             </View>
             <Text style={estilos.titulo}>{pedido.prenda_nombre}</Text>
-            <View style={pantalla.dato}><IconoCostura nombre="persona" size={13} color={tema.titulo} /><Text style={pantalla.datoTexto}>{pedido.cliente_nombre}</Text></View>
-            <View style={pantalla.dato}><IconoCostura nombre="calendario" size={13} color={tema.titulo} /><Text style={pantalla.datoTexto}>Entrega {pedido.fecha_entrega}</Text></View>
+            <View style={pantalla.dato}><IconoCostura nombre="persona" size={16} color={tema.titulo} /><Text style={pantalla.datoTexto}>{pedido.cliente_nombre}</Text></View>
+            <View style={pantalla.dato}><IconoCostura nombre="calendario" size={16} color={tema.titulo} /><Text style={pantalla.datoTexto}>Entrega {pedido.fecha_entrega}</Text></View>
           </View>
 
           {pedido.descripcion ? <View style={[estilos.tarjetaBlanca, pantalla.tarjeta]}><EtiquetaSeccion icono="aguja">Indicaciones del trabajo</EtiquetaSeccion><Text style={estilos.texto}>{pedido.descripcion}</Text></View> : null}
