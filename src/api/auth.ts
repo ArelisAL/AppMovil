@@ -23,9 +23,16 @@ export function mensajeDeError(error: unknown): string {
   if (error instanceof Error && error.message.startsWith("Configura EXPO_PUBLIC_API_URL")) {
     return error.message;
   }
-  const anyError = error as { response?: { data?: { detalle?: string } } };
+  const anyError = error as {
+    response?: { data?: { detalle?: string } };
+    request?: unknown;
+  };
   const detalle = anyError?.response?.data?.detalle;
   if (typeof detalle === "string" && detalle.length > 0) return detalle;
+  // Sin respuesta del servidor: no hay conexión (AGENTS.md §4.2.7).
+  if (anyError && typeof anyError === "object" && anyError.request && !anyError.response) {
+    return "Revisa tu conexión a internet e intenta de nuevo.";
+  }
   return "Hubo un error al contactar con la API.";
 }
 
