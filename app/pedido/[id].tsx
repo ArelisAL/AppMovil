@@ -149,7 +149,8 @@ export default function DetallePedido() {
   }
 
   function confirmarAvance() {
-    if (!pedido || pedido.estado === "ENTREGADO" || actualizandoEstado) return;
+    // La costurera avanza hasta TERMINADO; la entrega la registra recepción (C2).
+    if (!pedido || pedido.estado === "ENTREGADO" || pedido.estado === "TERMINADO" || actualizandoEstado) return;
     if (
       pedido.estado === "PENDIENTE" &&
       !consumos.some((uso) => uso.vigente && !uso.confirmado)
@@ -270,7 +271,7 @@ export default function DetallePedido() {
             ))}
           </View>
 
-          {pedido.estado !== "ENTREGADO" ? (
+          {pedido.estado !== "ENTREGADO" && pedido.estado !== "TERMINADO" ? (
             <>
               <BotonMarca onPress={confirmarAvance} cargando={actualizandoEstado} disabled={requiereConsumos} accessibilityLabel="Confirmar siguiente estado">Confirmar siguiente estado</BotonMarca>
               {requiereConsumos ? <Text style={estilos.nota}>Recepción debe registrar los consumos antes de iniciar el pedido.</Text> : null}
